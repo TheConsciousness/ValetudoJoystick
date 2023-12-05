@@ -1,7 +1,7 @@
 import React from "react";
 import {
     Box,
-    Button,
+    //Button,
     Collapse,
     FormControlLabel,
     Grid,
@@ -9,7 +9,7 @@ import {
     Stack,
     Switch,
     Typography,
-    styled,
+    //styled,
 } from "@mui/material";
 import {
     Capability,
@@ -20,14 +20,18 @@ import {
 } from "../api";
 import {useCapabilitiesSupported} from "../CapabilitiesProvider";
 import {FullHeightGrid} from "../components/FullHeightGrid";
+import PaperContainer from "../components/PaperContainer";
+import { Joystick } from 'react-joystick-component';
+/*
 import {
     ArrowDownward as ArrowDownwardIcon,
     ArrowUpward as ArrowUpwardIcon,
     RotateLeft as RotateLeftIcon,
     RotateRight as RotateRightIcon,
 } from "@mui/icons-material";
-import PaperContainer from "../components/PaperContainer";
+*/
 
+/*
 const SideButton = styled(Button)({
     width: "30%",
     height: "100%",
@@ -36,6 +40,7 @@ const SideButton = styled(Button)({
 const CenterButton = styled(Button)({
     width: "100%",
 });
+*/
 
 const ManualControlInternal: React.FunctionComponent = (): React.ReactElement => {
     const {
@@ -61,17 +66,38 @@ const ManualControlInternal: React.FunctionComponent = (): React.ReactElement =>
             );
         }
 
+        /*
         const controlsEnabled = !loading && manualControlState.enabled && !interacting;
         const forwardEnabled = controlsEnabled && manualControlProperties.supportedMovementCommands.includes("forward");
         const backwardEnabled = controlsEnabled && manualControlProperties.supportedMovementCommands.includes("backward");
         const rotateCwEnabled = controlsEnabled && manualControlProperties.supportedMovementCommands.includes("rotate_clockwise");
         const rotateCcwEnabled = controlsEnabled && manualControlProperties.supportedMovementCommands.includes("rotate_counterclockwise");
+        */
 
         const sendMoveCommand = (command: ManualControlCommand): void => {
             sendInteraction({
                 action: "move",
                 movementCommand: command,
             });
+        };
+
+        const moveWithJoystick = (joystickDirection: string): void => {
+            switch (joystickDirection) {
+                case 'BACKWARD':
+                    sendMoveCommand("backward");
+                    break;
+                case 'FORWARD':
+                    sendMoveCommand("forward");
+                    break;
+                case 'RIGHT':
+                    sendMoveCommand("rotate_clockwise");
+                    break;
+                case 'LEFT':
+                    sendMoveCommand("rotate_counterclockwise");
+                    break;
+                default:
+                    break;
+            }
         };
 
         return (
@@ -94,32 +120,7 @@ const ManualControlInternal: React.FunctionComponent = (): React.ReactElement =>
                 <Box/>
 
                 <Stack direction="row" sx={{width: "100%", height: "30vh"}} justifyContent="center" alignItems="center">
-                    <SideButton variant="outlined" disabled={!rotateCcwEnabled}
-                        onClick={() => {
-                            sendMoveCommand("rotate_counterclockwise");
-                        }}>
-                        <RotateLeftIcon/>
-                    </SideButton>
-                    <Stack sx={{width: "40%", height: "100%", ml: 1, mr: 1}} justifyContent="space-between">
-                        <CenterButton sx={{height: "65%"}} variant="outlined" disabled={!forwardEnabled}
-                            onClick={() => {
-                                sendMoveCommand("forward");
-                            }}>
-                            <ArrowUpwardIcon/>
-                        </CenterButton>
-                        <CenterButton sx={{height: "30%"}} variant="outlined" disabled={!backwardEnabled}
-                            onClick={() => {
-                                sendMoveCommand("backward");
-                            }}>
-                            <ArrowDownwardIcon/>
-                        </CenterButton>
-                    </Stack>
-                    <SideButton variant="outlined" disabled={!rotateCwEnabled}
-                        onClick={() => {
-                            sendMoveCommand("rotate_clockwise");
-                        }}>
-                        <RotateRightIcon/>
-                    </SideButton>
+                    <Joystick size={200} throttle={250} minDistance={50} baseColor="#005ecc" stickColor="black" move={(e)=>moveWithJoystick(e.direction?.toString() ?? "")}/>
                 </Stack>
             </>
         );
